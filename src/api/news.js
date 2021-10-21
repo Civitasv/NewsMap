@@ -1,9 +1,9 @@
 import { api } from 'boot/axios'
 
-const map = {
+const news = {
   loadData () {
     return api.get('data')
   }
 }
 
-export default map
+export default news
