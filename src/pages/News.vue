@@ -4,7 +4,7 @@
     <div id="map"></div>
     <div :class="['news', { 'toggle-news': arrow }]" v-show="show">
       <!---->
-      <q-card class="select">
+      <q-card class="select" flat>
         <div class="card-arrow">
           <q-btn
             round
@@ -16,13 +16,36 @@
           />
         </div>
         <div class="header bg-transparent">
-          <img
-            class="image"
-            :src="select.image"
+          <q-carousel
+            animated
+            v-model="slide"
+            :height="select.images.length>0?'150px':'0px'"
+            infinite
+            :autoplay="autoplay"
+            arrows
+            transition-prev="slide-right"
+            transition-next="slide-left"
+            @mouseenter="autoplay = false"
+            @mouseleave="autoplay = true"
             v-show="arrow"
-            @click="toggleNews"
-          />
-
+          >
+            <q-carousel-slide
+              v-for="(item, index) in select.images"
+              :key="index"
+              :name="index"
+            >
+<q-img
+      :src="item"
+      style="width:100%;height:100%"
+    >
+      <template v-slot:error>
+        <div class="absolute-full flex flex-center bg-negative text-white">
+          图像加载失败
+        </div>
+      </template>
+    </q-img>
+            </q-carousel-slide>
+          </q-carousel>
           <div class="arrow row justify-center">
             <q-icon
               size="md"
@@ -34,7 +57,7 @@
           </div>
         </div>
 
-        <div class="content">
+        <div class="content bg-transparent">
           <q-card-section>
             <div class="header row q-gutter-md items-center">
               <div class="text-h6 col">{{ select.title }}</div>
@@ -87,7 +110,7 @@ export default defineComponent({
     }
     const markers = reactive({ data: [] })
     const select = reactive({
-      image: '',
+      images: [],
       title: '',
       publish_time: '',
       content: '',
@@ -110,9 +133,9 @@ export default defineComponent({
                 getMarker(24, 32, () => {
                   console.log(item)
                   if (item.images.length > 0) {
-                    select.image = item.images[0]
+                    select.images = item.images
                   } else {
-                    select.image = '../../icons/default.jpg'
+                    select.images = ['../../icons/default.jpg']
                   }
                   select.title = item.title
                   select.publish_time = item.publish_time
@@ -145,7 +168,9 @@ export default defineComponent({
       show,
       arrow,
       toggleNewsHeight,
-      toggleNewsVisibility
+      toggleNewsVisibility,
+      slide: ref(1),
+      autoplay: ref(true)
     }
   }
 })
@@ -170,6 +195,7 @@ export default defineComponent({
     overflow: auto;
     border-radius: 20px 20px 0 0;
     z-index: 999;
+    background-color: white;
     .select {
       max-height: 100%;
       .image {
@@ -185,8 +211,9 @@ export default defineComponent({
   }
 
   .toggle-news {
+    height: 100%;
     max-height: 100%;
-      border-radius: 0;
+    border-radius: 0;
   }
 }
 </style>
